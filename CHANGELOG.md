@@ -7,4 +7,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Added
+
 - Initial project structure.
+- Makefile with C11 flags, `build/` output, `run` and `clean` targets.
