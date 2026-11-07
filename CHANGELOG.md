@@ -10,3 +10,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 - Initial project structure.
 - Makefile with C11 flags, `build/` output, `run` and `clean` targets.
+- `include/config.h` with ground station constants (ring capacity, DLQ, timeout, idempotency window, fault injection rate, PRNG seed).
+- `-Iinclude` compiler flag and header dependency in Makefile.

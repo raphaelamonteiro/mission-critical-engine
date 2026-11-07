@@ -1,6 +1,6 @@
 # Bloco 1 — Variáveis
 CC        := gcc
-CFLAGS    := -std=c11 -Wall -Wextra -Wpedantic -g -O2
+CFLAGS    := -std=c11 -Wall -Wextra -Wpedantic -g -O2 -Iinclude
 BUILD_DIR := build
 SRC       := src/main.c
 TARGET    := $(BUILD_DIR)/engine.exe
@@ -12,7 +12,7 @@ TARGET    := $(BUILD_DIR)/engine.exe
 all: $(TARGET)
 
 # Bloco 4 — Regra do $(TARGET)
-$(TARGET): $(SRC) | $(BUILD_DIR)
+$(TARGET): $(SRC) include/config.h | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $< -o $@
 
 # Bloco 5 — Regra da $(BUILD_DIR)
