@@ -1,5 +1,5 @@
 /* Ground Station Configuration */
-/* compile-time constants for the ground station telemetry pipeline */
+/* compile-time constants for the ground station telemetry pipeline” */
 
 #ifndef CONFIG_H
 #define CONFIG_H
