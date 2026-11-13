@@ -14,3 +14,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - `-Iinclude` compiler flag and header dependency in Makefile.
 - `include/telemetry.h` with `TelemetryPacket` struct (20 bytes, fixed layout) and `PacketStatus` enum for processing outcomes.
 - `include/integrity.h` and `src/integrity.c` with CRC32 checksum computation and packet validation logic.
+- `include/ring_buffer.h` and `src/ring_buffer.c` with O(1) circular FIFO queue.
+- `include/fault_injector.h` and `src/fault_injector.c` simulating cosmic ray corruption (bit flipping) using a deterministic PRNG seed.
+- Integration test in `main.c` showcasing data ingestion, chaos injection, and buffer isolation.

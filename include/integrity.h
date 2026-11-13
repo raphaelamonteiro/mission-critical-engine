@@ -6,9 +6,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stddef.h>    /* Correct C header for size_t */
-#include "telemetry.h" /* Includes the TelemetryPacket layout */
-
+#include <stddef.h>
+#include "telemetry.h"
 /* Computes the CRC32 checksum of an arbitrary memory block. */
 uint32_t integrity_compute_crc32(const void *data, size_t len);
 

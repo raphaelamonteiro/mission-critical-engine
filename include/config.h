@@ -28,4 +28,7 @@
 /* PRNG seed. Fixed value ensures deterministic runs across demos. */
 #define RANDOM_SEED 0xC0FFEEu
 
+/* Percentage chance of each packet being hit by a cosmic ray. A value of 20 means that 20% of the packets will be corrupted. */
+#define FAULT_INJECTION_RATE 20u
+
 #endif /* CONFIG_H */

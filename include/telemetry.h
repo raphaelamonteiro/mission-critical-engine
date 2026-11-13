@@ -1,5 +1,5 @@
 /* Telemetry Frame Processing */
-/* defines telemetry frame properties and possible processing outcomes, including successful decoding, validation failures and discarded frames */
+/* Defines telemetry frame properties and possible processing outcomes, including successful decoding, validation failures and discarded frames */
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
@@ -15,7 +15,6 @@ typedef enum
     PKT_INVALID
 } PacketStatus;
 
-/*o formato do frame:*/
 typedef struct
 {
     uint32_t seq_id;       /* Monotonic sequence number, used for dedup. */
