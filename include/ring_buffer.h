@@ -12,10 +12,10 @@
 
 typedef struct
 {
-    TelemetryPacket packets[RING_BUFFER_CAPACITY]; /* O array físico */
-    size_t head;                                   /* Onde o produtor vai escrever o próximo */
-    size_t tail;                                   /* Onde o consumidor vai ler o próximo */
-    size_t count;                                  /* Quantos itens tem agora (útil para saber se está cheio) */
+    TelemetryPacket packets[RING_BUFFER_CAPACITY]; /* Fixed contiguous array */
+    size_t head;                                   /* Write index for producer */
+    size_t tail;                                   /* Read index for consumer */
+    size_t count;                                  /* Active elements count */
 } RingBuffer;
 
 /* Ring Buffer API */
@@ -24,11 +24,7 @@ void rb_init(RingBuffer *rb);
 bool rb_is_full(const RingBuffer *rb);
 bool rb_is_empty(const RingBuffer *rb);
 
-bool rb_push(RingBuffer *rb, TelemetryPacket pkt);
+bool rb_push(RingBuffer *rb, const TelemetryPacket *pkt);
 bool rb_pop(RingBuffer *rb, TelemetryPacket *out_pkt);
-
-/*RingBuffer *rb: permite modificar o buffer original.
-const RingBuffer *rb: permite consultar o buffer sem modificá-lo.
-TelemetryPacket *out_pkt: permite devolver o pacote através de um ponteiro.*/
 
 #endif /* RING_BUFFER_H */

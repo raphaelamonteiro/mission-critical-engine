@@ -1,29 +1,45 @@
 #include "fault_injector.h"
 #include <stdlib.h>
 
-/*
- * Initializes the pseudo-random number generator.
- * A fixed seed ensures the demo runs the same way every time.
- */
+static uint32_t s_fault_rate = FAULT_INJECTION_RATE;
+
 void fault_injector_init(void)
 {
-    srand(RANDOM_SEED);
+    fault_injector_init_with_seed(RANDOM_SEED);
 }
 
-/*
- * Simulates a cosmic ray: with a FAULT_INJECTION_RATE% chance,
- * flips the last bit of the packet's 'value' field.
- */
+void fault_injector_init_with_seed(uint32_t seed)
+{
+    srand(seed);
+    s_fault_rate = FAULT_INJECTION_RATE;
+}
+
+void fault_injector_set_rate(uint32_t rate_pct)
+{
+    s_fault_rate = (rate_pct > 100) ? 100 : rate_pct;
+}
+
+uint32_t fault_injector_get_rate(void)
+{
+    return s_fault_rate;
+}
+
 bool fault_injector_corrupt(TelemetryPacket *pkt)
 {
-    // number from 0 to 99
+    if (pkt == NULL || s_fault_rate == 0)
+    {
+        return false;
+    }
+
+    /* Roll 0 to 99 */
     unsigned int roll = (unsigned int)(rand() % 100);
 
-    if (roll < FAULT_INJECTION_RATE)
+    if (roll < s_fault_rate)
     {
+        /* Simulate single-event upset (SEU) bitflip via XOR */
         pkt->value ^= 1;
         return true;
     }
 
-    return false; // packet intact
+    return false;
 }

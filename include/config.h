@@ -1,11 +1,11 @@
 /* Ground Station Configuration */
-/* compile-time constants for the ground station telemetry pipeline” */
+/* Compile-time constants for the ground station telemetry pipeline */
 
 #ifndef CONFIG_H
 #define CONFIG_H
 
 /* Ring buffer: number of telemetry frames held in the "parking orbit"
- * between the radio receiver and the processor. */
+ * between the radio receiver and the processor. Must be a power of 2. */
 #define RING_BUFFER_CAPACITY 64
 
 /* Dead-Letter Queue: frames that failed integrity, timed out, or were
@@ -21,14 +21,17 @@
  * than it stays in the dedup window. */
 #define IDEMPOTENCY_WINDOW 64
 
-/* Percentage (0-100) of frames that will be corrupted or delayed
+/* Default percentage (0-100) of frames that will be corrupted
  * by the fault injector. Tuned for demo visibility. */
 #define FAULT_INJECTION_RATE 20u
 
 /* PRNG seed. Fixed value ensures deterministic runs across demos. */
 #define RANDOM_SEED 0xC0FFEEu
 
-/* Percentage chance of each packet being hit by a cosmic ray. A value of 20 means that 20% of the packets will be corrupted. */
-#define FAULT_INJECTION_RATE 20u
+/* Default stage animation frame delay (ms) */
+#define DEFAULT_STAGE_DELAY_MS 400
+
+/* Default total simulation frames */
+#define DEFAULT_SIMULATION_PACKETS 30
 
 #endif /* CONFIG_H */

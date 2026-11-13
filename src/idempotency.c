@@ -1,7 +1,13 @@
 #include "idempotency.h"
+#include <stddef.h>
 
 void idempotency_init(IdempotencyWindow *iw)
 {
+    if (iw == NULL)
+    {
+        return;
+    }
+
     /* Preenche o array com um valor sentinela (vazio) */
     for (size_t i = 0; i < IDEMPOTENCY_WINDOW; i++)
     {
@@ -12,6 +18,11 @@ void idempotency_init(IdempotencyWindow *iw)
 
 bool idempotency_is_duplicate(IdempotencyWindow *iw, uint32_t seq_id)
 {
+    if (iw == NULL)
+    {
+        return false;
+    }
+
     /* 1. Procura na janela se o ID já existe */
     for (size_t i = 0; i < IDEMPOTENCY_WINDOW; i++)
     {

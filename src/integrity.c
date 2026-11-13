@@ -1,10 +1,16 @@
 /* Integrity Verification Module - Implementation */
 
 #include "integrity.h"
+#include <stddef.h>
 
-/* Computes the standard CRC32 checksum. */
+/* Computes the standard CRC32 checksum (polynomial 0xEDB88320). */
 uint32_t integrity_compute_crc32(const void *data, size_t len)
 {
+    if (data == NULL || len == 0)
+    {
+        return 0;
+    }
+
     /* Cast generic memory pointer to byte array for traversal */
     const uint8_t *bytes = (const uint8_t *)data;
 
@@ -40,10 +46,12 @@ uint32_t integrity_compute_crc32(const void *data, size_t len)
 bool integrity_verify_packet(const TelemetryPacket *pkt)
 {
     if (pkt == NULL)
+    {
         return false;
+    }
 
-    /* Calculate the CRC of the first 16 bytes (all fields except crc32) */
-    uint32_t expected = integrity_compute_crc32(pkt, 16);
+    /* Calculate the CRC over all fields before the crc32 field itself */
+    uint32_t expected = integrity_compute_crc32(pkt, offsetof(TelemetryPacket, crc32));
 
     /* Compare the calculated checksum with the one sent in the packet */
     return (expected == pkt->crc32);

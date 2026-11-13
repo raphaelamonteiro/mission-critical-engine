@@ -1,25 +1,36 @@
-# Bloco 1 — Variáveis
+# ==============================================================================
+# Mission Critical Engine — Makefile
+# Resilient C11 Space Station Telemetry Simulator
+# ==============================================================================
+
 CC        := gcc
 CFLAGS    := -std=c11 -Wall -Wextra -Wpedantic -g -O2 -Iinclude
 BUILD_DIR := build
-SRC       := $(wildcard src/*.c)
+SRC_DIR   := src
+
+# Descoberta de fontes e objetos via pattern rules
+SRC       := $(wildcard $(SRC_DIR)/*.c)
+OBJ       := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
 TARGET    := $(BUILD_DIR)/engine.exe
 
-# Bloco 2 — .PHONY
-.PHONY: all run clean
+.PHONY: all run clean help
 
-# Bloco 3 — Alvo all
 all: $(TARGET)
 
-# Bloco 4 — Compilação
-$(TARGET): $(SRC)
-	mkdir -p $(BUILD_DIR)
+# Ligação (Linkagem)
+$(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
-# Bloco 5 — run
+# Pattern Rule: compilação incremental de cada unidade de tradução .c -> .o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Criação do diretório de build como order-only prerequisite
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR) 2>/dev/null || mkdir $(BUILD_DIR) 2>nul || echo Directoy exists
+
 run: $(TARGET)
 	./$(TARGET)
 
-# Bloco 6 — clean
 clean:
-	rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) 2>/dev/null || rmdir /s /q $(BUILD_DIR) 2>nul || echo Cleaned
