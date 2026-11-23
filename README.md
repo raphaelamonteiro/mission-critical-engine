@@ -2,213 +2,218 @@
 
 <div align="center">
 
-[![Standard: C11](https://img.shields.io/badge/C11-ISO%2FIEC%209899%3A2011-blue.svg?style=flat-square&logo=c)](https://en.wikipedia.org/wiki/C11_(C_standard_revision))
-[![Allocation: Zero Dynamic Heap](https://img.shields.io/badge/Memory-Zero%20Heap%20(No%20malloc)-success.svg?style=flat-square)](#pilar-1-isolamento-de-falhas--ring-buffer-zero-heap)
-[![Quality: -Wall -Wextra -Wpedantic](https://img.shields.io/badge/Compiler-Strict%20Pedantic-informational.svg?style=flat-square)](#compila%C3%A7%C3%A3o)
-[![Platform: Cross-Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg?style=flat-square)](#compila%C3%A7%C3%A3o)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-[![Talk: Além do Try/Catch](https://img.shields.io/badge/Palestra-Al%C3%A9m%20do%20Try%2FCatch-orange.svg?style=flat-square)](#sobre-a-palestra)
+![Standard: C11](https://img.shields.io/badge/C11-ISO%2FIEC%209899%3A2011-8B5CF6.svg?style=flat-square&logo=c&logoColor=white) 
+![Allocation: Zero Dynamic Heap](https://img.shields.io/badge/Memory-Zero%20Heap%20(No%20malloc)-6366F1.svg?style=flat-square) 
+![Quality: Strict Compiler](https://img.shields.io/badge/Compiler-Strict%20Pedantic-3B82F6.svg?style=flat-square) 
+![Platform: Cross-Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-60A5FA.svg?style=flat-square) 
+![License: MIT](https://img.shields.io/badge/License-MIT-A78BFA.svg?style=flat-square) 
 
-**Simulação de telemetria espacial de alta resiliência demonstrando os princípios de tolerância a falhas em sistemas críticos sem depender de blocos `try/catch`.**
+![DevFest 2026](https://img.shields.io/badge/DevFest-2026-8B5CF6.svg?style=flat-square) 
+![São José dos Campos](https://img.shields.io/badge/Location-S%C3%A3o%20Jos%C3%A9%20dos%20Campos-6366F1.svg?style=flat-square)
+
+**A high-resilience space telemetry simulation demonstrating fault-tolerance principles in critical systems without relying on `try/catch` blocks.**
 
 </div>
 
 ---
 
-## 🌌 O Problema do Mundo Real: Telemetria Espacial em Águas Profundas
-
-Em missões espaciais e sistemas de alta criticidade (aeroespacial, telemetria de satélites, usinas e dispositivos médicos), **falhas não são exceções: são certezas estatísticas**.
-
-Quando uma sonda espacial transmite quadros de telemetria através da **Deep Space Network (DSN)**, o sinal atravessa um ambiente hostil:
-1. **Raios Cósmicos (Single Event Upsets - SEU):** Radiação ionizante colide com semicondutores e inverte bits em memória física (*bit-flips* silenciosos).
-2. **Perda de Sincronia e Jitter Orbital:** Atrasos de propagação electromagnética tornam pacotes obsoletos antes mesmo do processamento.
-3. **Retransmissões Duplicadas:** Redes rádio não confiáveis geram retransmissões automáticas que podem causar reexecução de comandos críticos.
-4. **O Falso Conforto do `try/catch`:** Em linguagens de alto nível com *Garbage Collector*, programadores costumam envolver código frágil em blocos `try/catch` e alocar memória indiscriminadamente no *Heap*. Em um satélite, uma exceção não capturada ou uma fragmentação de memória por `malloc` resulta na perda irreparável de uma missão de centenas de milhões de dólares.
-
-O **Mission Critical Engine** demonstra como a engenharia de software em **C11 puro** resolve esses desafios na raiz: **projetando o sistema para ser matematicamente verificável, estaticamente alocado e determinístico**.
+<p align="center">
+  <a href="./README.md">🇧🇷 Português</a> • 
+  <a href="./README-EN.md">🇺🇸 English</a>
+</p>
 
 ---
 
-## 🏛️ Arquitetura do Sistema
+## 🌌 The Real-World Problem: Deep Space Telemetry
+
+In space missions and safety-critical systems (aerospace, satellite telemetry, power plants, and medical devices), **failures are not exceptions: they are statistical certainties.**
+
+When a spacecraft transmits telemetry frames through the **Deep Space Network (DSN)**, the signal travels through a hostile environment:
+
+1. **Cosmic Rays (Single Event Upsets - SEU):** Ionizing radiation collides with semiconductor components and flips bits in physical memory, causing silent bit-flips.
+2. **Loss of Synchronization and Orbital Jitter:** Electromagnetic propagation delays can make packets obsolete before they are even processed.
+3. **Duplicate Retransmissions:** Unreliable radio networks generate automatic retransmissions that can cause critical commands to be executed more than once.
+4. **The False Sense of Security of `try/catch`:** In high-level languages with Garbage Collectors, developers often wrap fragile code in `try/catch` blocks and allocate memory indiscriminately on the Heap. On a satellite, an uncaught exception or memory fragmentation caused by `malloc` can result in the irreversible loss of a mission worth hundreds of millions of dollars.
+
+The **Mission Critical Engine** demonstrates how software engineering in **pure C11** addresses these challenges at their root: **by designing systems to be mathematically verifiable, statically allocated, and deterministic.**
+
+---
+
+## 🏛️ System Architecture
 
 ```text
-       🛰️ [SATÉLITE / TRANSMISSOR ORBITAL]
+       🛰️ [SATELLITE / ORBITAL TRANSMITTER]
                        │
-             (Enlace Rádio / Ruído Cósmico)
-                       │  [Bit-flip via XOR / Atraso / Retransmissão]
+             (Radio Link / Cosmic Noise)
+                       │  [Bit-flip via XOR / Delay / Retransmission]
                        ▼
        ┌────────────────────────────────────────────────────────┐
        │           MISSION CRITICAL TELEMETRY PIPELINE          │
        └────────────────────────────────────────────────────────┘
                                │
-               [ 1. Deadline / Timeout Monotônico ]
+               [ 1. Monotonic Deadline / Timeout ]
                                │
-                ├──( Expirado > 500ms )───► [ Dead-Letter Queue (DLQ) ]
+                ├──( Expired > 500ms )───► [ Dead-Letter Queue (DLQ) ]
                 │                                    ▲
-               [ 2. Integridade CRC32 ]              │
+               [ 2. CRC32 Integrity Check ]          │
                 │                                    │
-                ├──( Checksum Divergente )───────────┘
+                ├──( Checksum Mismatch )─────────────┘
                 │
-               [ 3. Idempotência / Janela Deslizante ]
+               [ 3. Idempotency / Sliding Window ]
                 │
-                ├──( seq_id já processado )────────► [ Descarte Seguro ]
+                ├──( seq_id already processed )───► [ Safe Discard ]
                 │
-               [ 4. Ring Buffer Circular (Zero Heap) ]
+               [ 4. Circular Ring Buffer (Zero Heap) ]
                 │
-                └──( Quadro Válido O(1) )──────────► [ Consumidor da Missão ]
-                                                     [ Dashboard TUI TrueColor ]
-```
+                └──( Valid Frame O(1) )────────────► [ Mission Consumer ]
+                                                     [ TrueColor TUI Dashboard ]
+````
 
----
+## 🛡️ The 4 Pillars of Resilience
 
-## 🛡️ Os 4 Pilares da Resiliência
+### Pillar 1: Fault Isolation & Ring Buffer (Zero Heap)
 
-### Pilar 1: Isolamento de Falhas & Ring Buffer (Zero Heap)
-- **O Princípio:** Em sistemas críticos (DO-178C, MISRA-C), o uso de memória dinâmica (`malloc`/`free`) em tempo de execução é expressamente desencorajado devido ao risco de fragmentação de *heap* e falhas por esgotamento de memória (*OOM*).
-- **A Implementação:** O `RingBuffer` opera sobre um array estático de capacidade fixa (`RING_BUFFER_CAPACITY = 64`), indexado por ponteiros circulares `head` e `tail`.
-- **Complexidade:** Todas as operações de escrita (`rb_push`) e leitura (`rb_pop`) são $O(1)$ estritas, sem realocação e sem paradas de coletor de lixo.
+- The Principle: In safety-critical systems (DO-178C, MISRA-C), dynamic memory allocation (`malloc`/`free`) at runtime is strongly discouraged due to the risk of heap fragmentation and out-of-memory (OOM) failures.
+- The Implementation: The `RingBuffer` operates on a fixed-capacity static array (`RING_BUFFER_CAPACITY = 64`), indexed using circular `head` and `tail` pointers.
+- Complexity: All write (`rb_push`) and read (`rb_pop`) operations have strict $O(1)$ time complexity, with no reallocation and no garbage collection pauses.
 
-### Pilar 2: Integridade Matemática dos Dados via CRC32
-- **O Princípio:** Não confie em objetos na memória. Valide cada byte antes de qualquer manipulação de estado.
-- **A Implementação:** O pacote carrega um campo `crc32` calculado sobre todos os seus membros prévios (`offsetof(TelemetryPacket, crc32)`). Quando uma partícula cósmica inverte um bit (`pkt->value ^= 1`), o polinômio do CRC32 (`0xEDB88320`) detecta a discrepância imediatamente, isolando o pacote antes que ele corrompa o estado do sistema.
+### Pillar 2: Mathematical Data Integrity via CRC32
 
-### Pilar 3: Idempotência com Janela Deslizante (*Sliding Window*)
-- **O Princípio:** Em canais de rádio não garantidos, o transmissor pode retransmitir pacotes já aceitos. Processar duas vezes o mesmo pacote de manobra pode desorientar os propulsores da estação.
-- **A Implementação:** Uma estrutura circular `IdempotencyWindow` armazena o histórico dos últimos $N$ `seq_id` processados. Se um pacote com número de sequência repetido chega à estação, ele é registrado e descartado de forma limpa, sem ir para a DLQ e sem alterar o estado operacional.
+- The Principle: Never trust objects in memory. Validate every byte before performing any state manipulation.
+- The Implementation: Each packet carries a `crc32` field calculated over all preceding members (`offsetof(TelemetryPacket, crc32)`). When a cosmic particle flips a bit (`pkt->value ^= 1`), the CRC32 polynomial (`0xEDB88320`) immediately detects the mismatch, isolating the packet before it can corrupt the system state.
 
-### Pilar 4: Degradação Graciosa (Timeout Monotônico & Dead-Letter Queue)
-- **O Princípio:** O sistema nunca trava (*never hang*). Se os dados demoraram mais do que o limite permitido (`TIMEOUT_MS`), eles não são mais seguros para a tomada de decisão em tempo real.
-- **A Implementação:** O módulo calcula o tempo transcorrido através de relógio monotônico (`CLOCK_MONOTONIC` ou `GetTickCount64`), imune a ajustes de relógio do SO. Pacotes vencidos ou corrompidos não abortam a execução: são roteados para a **Dead-Letter Queue (DLQ)** para auditoria forense posterior, mantendo o fluxo principal 100% responsivo.
+### Pillar 3: Idempotency with a Sliding Window
 
----
+- The Principle: On unreliable radio channels, transmitters may retransmit packets that have already been accepted. Processing the same maneuver packet twice could misdirect a station's thrusters.
+- The Implementation: A circular `IdempotencyWindow` structure stores the history of the last $N$ processed `seq_id` values. If a packet with a previously received sequence number reaches the station, it is logged and safely discarded without entering the DLQ or modifying the operational state.
 
-## 🚀 Como Compilar
+### Pillar 4: Graceful Degradation (Monotonic Timeout & Dead-Letter Queue)
 
-O projeto utiliza **C11**, compilador `gcc` com flags estritas (`-Wall -Wextra -Wpedantic -g -O2`) e um `Makefile` com pattern rules modulares.
+- The Principle: The system must never hang. If data takes longer than the allowed threshold (`TIMEOUT_MS`) to arrive, it is no longer safe for real-time decision-making.
+- The Implementation: The module calculates elapsed time using a monotonic clock (`CLOCK_MONOTONIC` or `GetTickCount64`), which is immune to operating system clock adjustments. Expired or corrupted packets do not abort execution: they are routed to the Dead-Letter Queue (DLQ) for subsequent forensic auditing, keeping the main processing pipeline fully responsive.
 
-### Pré-requisitos
-- Compilador GCC compatível com C11 (MinGW no Windows, GCC nativo no Linux / macOS)
+## 🚀 Compilation
+
+The project uses C11, the `gcc` compiler with strict flags (`-Wall -Wextra -Wpedantic -g -O2`), and a `Makefile` with modular pattern rules.
+
+### Prerequisites
+
+- C11-compatible GCC compiler (MinGW on Windows, native GCC on Linux / macOS)
 - GNU Make
 
 ```bash
-# Limpar artefatos anteriores
+# Clean previous build artifacts
 make clean
 
-# Compilar com pattern rules
+# Compile using pattern rules
 make
 ```
 
----
+## 🎮 Running the Live Demonstration (Demo Scenarios)
 
-## 🎮 Como Rodar no Palco (Cenários de Demonstração)
-
-O binário foi projetado com **argumentos de linha de comando** para que o apresentador alterne entre cenários dramáticos ao vivo sem recompilar o código na frente da plateia.
+The binary was designed with command-line arguments so the presenter can switch between dramatic scenarios live, without recompiling the code in front of the audience.
 
 ```bash
-# Ajuda completa da CLI
+# Display complete CLI help
 ./build/engine.exe --help
 ```
 
-### 1. Cenário "Céu Limpo" (`clean`)
-Demonstração do estado de saúde nominal da estação. Telemetria fluindo a 100%, todos os pacotes aprovados `[OK]`, sem perdas.
+### 1. "Clear Skies" Scenario (`clean`)
+
+Demonstrates the station's nominal healthy state. Telemetry flows at 100%, all packets are approved `[OK]`, and no data is lost.
+
 ```bash
 ./build/engine.exe --scenario clean
 ```
 
-### 2. Cenário "Tempestade Solar" (`storm`) — O Momento da Palestra!
-Simula uma tempestade de radiação espacial. Raios cósmicos causam bit-flips (capturados pelo CRC32), atrasos de rede acionam timeouts para a DLQ e tentativas de retransmissão são neutralizadas pela idempotência.
+### 2. "Solar Storm" Scenario (`storm`) — The Highlight of the Talk\!
+
+Simulates a space radiation storm. Cosmic rays cause bit-flips (detected by CRC32), network delays trigger timeouts and route packets to the DLQ, and retransmission attempts are neutralized by idempotency.
+
 ```bash
 ./build/engine.exe --scenario storm --delay 300
 ```
 
-### 3. Cenário "Caos Extremo" (`chaos`)
-Teste de estresse severo: alta densidade de corrupção e saturação da Dead-Letter Queue. Demonstra que mesmo sob bombardeio extremo, o motor não aborta (*zero crash*).
+### 3. "Extreme Chaos" Scenario (`chaos`)
+
+Severe stress testing with high corruption density and Dead-Letter Queue saturation. Demonstrates that even under extreme bombardment, the engine does not abort execution (zero crashes).
+
 ```bash
 ./build/engine.exe --scenario chaos -n 40 --delay 200
 ```
 
-### 4. Customização de Parâmetros
+### 4. Parameter Customization
+
 ```bash
-# Rodar 50 pacotes com atraso de 150ms e semente aleatória personalizada
+# Run 50 packets with a 150ms delay and a custom random seed
 ./build/engine.exe --scenario storm --packets 50 --delay 150 --seed 0xDEADBEEF
 ```
 
----
-
-## 🖥️ Demonstração Visual (TUI TrueColor)
+## 🖥️ Visual Demonstration (TrueColor TUI)
 
 ```text
-        .-.
-       (   )
-      (     )
-     (       )
-    (         )
-     (       )
-      (     )
-       (   )
-        '-'
 =========================================
     MISSION CONTROL: DEEP SPACE NETWORK
-    SCENARIO: STORM (TEMPESTADE SOLAR)
+    SCENARIO: STORM (SOLAR STORM)
 =========================================
- [STATUS DA MISSÃO]
- Recebidos  : 20
- Processados: 9
- Corrompidos: 3
- Timeouts   : 5
- Duplicados : 3
+ [MISSION STATUS]
+ Received  : 20
+ Processed : 9
+ Corrupted : 3
+ Timeouts  : 5
+ Duplicates: 3
 
- [RING BUFFER PRINCIPAL] (0/64)
+ [MAIN RING BUFFER] (0/64)
  ----------------------------------------------------------------
  [DEAD-LETTER QUEUE] (8/16)
  !!!!!!!!--------
 =========================================
- [TELEMETRIA RECENTE]
- -> [OK]  Pacote 117 processado com sucesso
- -> [DUP] Pacote 117 descartado (idempotência detectou reenvio)
+ [RECENT TELEMETRY]
+ -> [OK]  Packet 117 successfully processed
+ -> [DUP] Packet 117 discarded (idempotency detected retransmission)
 ```
 
----
-
-## 📂 Estrutura do Projeto
+## 📂 Project Structure
 
 ```text
 mission-critical-engine/
 ├── include/
-│   ├── config.h          # Parâmetros de compilação e limites estáticos
-│   ├── fault_injector.h  # Injetor de caos (raios cósmicos e SEU)
-│   ├── idempotency.h     # Janela deslizante de deduplicação
-│   ├── integrity.h       # Verificação matemática CRC32
-│   ├── ring_buffer.h     # Buffer circular estático (Zero Heap)
-│   ├── telemetry.h       # Estrutura TelemetryPacket e _Static_assert
-│   ├── timeout.h         # Relógio monotônico e controle de deadline
-│   └── tui.h             # Renderização de terminal em ANSI TrueColor
+│   ├── config.h          # Compilation parameters and static limits
+│   ├── fault_injector.h  # Chaos injector (cosmic rays and SEU)
+│   ├── idempotency.h     # Sliding-window deduplication
+│   ├── integrity.h       # Mathematical CRC32 verification
+│   ├── ring_buffer.h     # Static circular buffer (Zero Heap)
+│   ├── telemetry.h       # TelemetryPacket structure and _Static_assert
+│   ├── timeout.h         # Monotonic clock and deadline control
+│   └── tui.h             # ANSI TrueColor terminal rendering
 ├── src/
-│   ├── fault_injector.c  # Simulação de radiação via bitwise XOR
-│   ├── idempotency.c     # Histórico de IDs e verificação de duplicatas
-│   ├── integrity.c       # Algoritmo polinomial CRC32
-│   ├── main.c            # Loop da simulação, CLI parser e pipeline
-│   ├── ring_buffer.c     # Implementação O(1) do Ring Buffer
-│   ├── timeout.c         # Medição monotônica de tempo
-│   └── tui.c             # Interface com visual de centro de comando
+│   ├── fault_injector.c  # Radiation simulation via bitwise XOR
+│   ├── idempotency.c     # ID history and duplicate detection
+│   ├── integrity.c       # CRC32 polynomial algorithm
+│   ├── main.c            # Simulation loop, CLI parser, and pipeline
+│   ├── ring_buffer.c     # O(1) Ring Buffer implementation
+│   ├── timeout.c         # Monotonic time measurement
+│   └── tui.c             # Mission control-style terminal interface
 ├── docs/
-│   ├── ARCHITECTURE.md   # Diagramas de arquitetura detalhados
-│   ├── C_CONCEPTS.md     # Guia didático completo de C11 e resiliência
-│   └── DEMO.md           # Roteiro passo a passo para o palco
-├── Makefile              # Build incremental com pattern rules
-└── README.md             # Esta documentação
+│   ├── ARCHITECTURE.md   # Detailed architecture diagrams
+│   ├── C_CONCEPTS.md     # Comprehensive guide to C11 and resilience
+│   └── DEMO.md           # Step-by-step live presentation guide
+├── Makefile              # Incremental build with pattern rules
+└── README.md             # This documentation
 ```
 
----
 
-## 🎤 Sobre a Palestra: "Além do Try/Catch"
+## 🎤 About the Talk: "Beyond Try/Catch: How to Design Resilient Software for the Real World?"
 
-> *"Tratar exceção depois que ela acontece é fácil. O verdadeiro desafio da engenharia de software de missão crítica é construir sistemas que matematicamente impedem que o estado inválido se propague."*
+> *"Handling exceptions after they happen is easy. The real challenge of mission-critical software engineering is designing systems that contain failures and prevent invalid states from propagating."*
 
-Este repositório foi construído para servir como código-fonte e laboratório interativo para a palestra **"Além do Try/Catch: Arquitetura de Software Resiliente em Sistemas Críticos"**.
+This repository was built to serve as both the source code and an interactive laboratory for the talk:
 
----
+**"Beyond Try/Catch: How to Design Resilient Software for the Real World?"**
+📍 **DevFest 2026 — São José dos Campos, Brazil**
 
-## 📄 Licença
+## 📄 License
 
-Distribuído sob a licença **MIT**. Consulte `LICENSE` para mais detalhes.
+Distributed under the MIT License. See `LICENSE` for more details.
+
+```
