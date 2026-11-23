@@ -18,8 +18,8 @@
 ---
 
 <p align="center">
-  <a href="./README.md">🇧🇷 Português</a> • 
-  <a href="./README-EN.md">🇺🇸 English</a>
+  <a href="./README-PT.md">🇧🇷 Português</a> • 
+  <a href="./README.md">🇺🇸 English</a>
 </p>
 
 ---
