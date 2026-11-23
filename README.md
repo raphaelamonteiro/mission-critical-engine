@@ -215,5 +215,3 @@ This repository was built to serve as both the source code and an interactive la
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more details.
-
-```
